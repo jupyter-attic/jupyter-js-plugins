@@ -37,6 +37,10 @@ import {
   CodeCellModel, ICellModel, isCodeCell, BaseCellModel
 } from 'jupyter-js-cells';
 
+import {
+  WidgetManager
+} from './widgetmanager';
+
 import './plugin.css';
 
 
@@ -97,7 +101,6 @@ function executeSelectedCell(model: NotebookModel, session: INotebookSession)  {
     let ex = session.kernel.execute(exRequest);
     output.clear(false);
     ex.onIOPub = (msg => {
-      // TODO: not getting an execute_result message
       let model = messageToModel(msg);
       console.log('iopub', msg);
       if (model !== void 0) {
@@ -140,41 +143,67 @@ class NotebookFileHandler extends AbstractFileHandler {
    */
   protected createWidget(path: string): Widget {
     let model = new NotebookModel();
-    let panel = new Panel()
+    let panel = new Panel();
+
     let button = new Widget();
     let b = document.createElement('button');
     b.appendChild(document.createTextNode('Execute Current Cell'))
+    button.node.appendChild(b);
+
+
+    let widgetarea = new Widget();
+    let manager = new WidgetManager(widgetarea.node);
+
     this.session.startNew({notebookPath: path}).then(s => {
       b.addEventListener('click', ev=> {
         executeSelectedCell(model, s);
       })
+      s.kernel.commOpened.connect((kernel, msg) => {
+        let content = msg.content;
+        if (content.target_name !== 'jupyter.widget') {
+          return;
+        }
+        let comm = kernel.connectToComm('jupyter.widget', content.comm_id);
+        console.log('comm message', msg);
+
+        let modelPromise = manager.handle_comm_open(comm, msg);
+
+
+        comm.onMsg = (msg) => {
+          manager.handle_comm_open(comm, msg)
+          // create the widget model and (if needed) the view
+          console.log('comm widget message', msg);
+        }
+        comm.onClose = (msg) => {
+          console.log('comm widget close', msg);
+        }
+      })
     })
-    button.node.appendChild(b);
+
+
+
+
     panel.addChild(button);
+    panel.addChild(widgetarea)
     panel.addChild(new NotebookWidget(model));
+
     panel.title.text = path.split('/').pop();
     panel.addClass('jp-NotebookContainer')
     return panel;
   }
 
-  protected setState(widget: NotebookWidget, model: IContentsModel): Promise<void> {
-    let nbdata: NBData = makedata(model);
-    populateNotebookModel(widget.model, nbdata);
-    return Promise.resolve();
-  }
-
-  protected getState(widget: NotebookWidget): Promise<IContentsModel> {
-    return Promise.resolve(void 0);
-  }
-
   /**
    * Populate the notebook widget with the contents of the notebook.
    */
-  protected populateWidget(widget: Widget, model: IContentsModel): Promise<void> {
+  protected setState(widget: Widget, model: IContentsModel): Promise<void> {
     let nbData: NBData = makedata(model);
-    let nbWidget: NotebookWidget = ((widget as Panel).childAt(1)) as NotebookWidget;
+    let nbWidget: NotebookWidget = ((widget as Panel).childAt(2)) as NotebookWidget;
     populateNotebookModel(nbWidget.model, nbData);
     return Promise.resolve();
+  }
+
+  protected getState(widget: Widget): Promise<IContentsModel> {
+    return Promise.resolve(void 0);
   }
 
   session: INotebookSessionManager;
@@ -188,3 +217,12 @@ function makedata(a: IContentsModel): NBData {
     path: a.path
   }
 }
+
+
+/**
+ * Widgets:
+ *   - write my own manager that inserts the widget element in a widget in the output area
+ *   - maybe have a single widget panel at the top of the notebook for starters.
+ *   - register with the comm manager of the kernel
+ *   -
+ */
