@@ -6,7 +6,7 @@ import {
     ManagerBase, shims
 } from 'jupyter-js-widgets';
 
-
+require('jquery-ui/themes/smoothness/jquery-ui.min.css')
 require("jupyter-js-widgets/static/widgets/css/widgets.min.css");
 
 export
