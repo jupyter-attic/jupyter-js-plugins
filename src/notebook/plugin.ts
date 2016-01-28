@@ -134,14 +134,14 @@ class NotebookFileHandler extends AbstractFileHandler {
   /**
    * Get file contents given a path.
    */
-  protected getContents(path: string): Promise<IContentsModel> {
-    return this.manager.get(path, { type: 'notebook' });
+  protected getContents(model: IContentsModel): Promise<IContentsModel> {
+    return this.manager.get(model.path, { type: 'notebook' });
   }
 
   /**
    * Create the widget from an `IContentsModel`.
    */
-  protected createWidget(path: string): Widget {
+  protected createWidget(contents: IContentsModel): Widget {
     let model = new NotebookModel();
     let panel = new Panel();
 
@@ -154,7 +154,7 @@ class NotebookFileHandler extends AbstractFileHandler {
     let widgetarea = new Widget();
     let manager = new WidgetManager(widgetarea.node);
 
-    this.session.startNew({notebookPath: path}).then(s => {
+    this.session.startNew({notebookPath: contents.path}).then(s => {
       b.addEventListener('click', ev=> {
         executeSelectedCell(model, s);
       })
@@ -177,17 +177,14 @@ class NotebookFileHandler extends AbstractFileHandler {
         comm.onClose = (msg) => {
           console.log('comm widget close', msg);
         }
-      })
-    })
-
-
-
+      });
+    });
 
     panel.addChild(button);
     panel.addChild(widgetarea)
     panel.addChild(new NotebookWidget(model));
 
-    panel.title.text = path.split('/').pop();
+    panel.title.text = contents.path.split('/').pop();
     panel.addClass('jp-NotebookContainer')
     return panel;
   }
