@@ -39,6 +39,7 @@ import {
 
 import './plugin.css';
 
+
 /**
  * Register the plugin contributions.
  *
@@ -59,6 +60,7 @@ function resolve(container: Container): Promise<IFileHandler> {
   });
 }
 
+
 export
 class SessionStoreMapping {
   constructor(services: IServicesProvider) {
@@ -66,6 +68,7 @@ class SessionStoreMapping {
   }
   public services: IServicesProvider;
 }
+
 
 function messageToModel(msg: IKernelMessage) {
   let m: Output = msg.content;
@@ -77,6 +80,7 @@ function messageToModel(msg: IKernelMessage) {
   }
   return buildOutputModel(m);
 }
+
 
 function executeSelectedCell(model: NotebookModel, session: INotebookSession)  {
   let cell = model.cells.get(model.selectedCellIndex);
@@ -104,6 +108,7 @@ function executeSelectedCell(model: NotebookModel, session: INotebookSession)  {
     ex.onDone = (msg => {console.log('b', msg)});
   }
 }
+
 
 /**
  * An implementation of a file handler.
@@ -174,6 +179,7 @@ class NotebookFileHandler extends AbstractFileHandler {
 
   session: INotebookSessionManager;
 }
+
 
 function makedata(a: IContentsModel): NBData {
   return {
