@@ -49,13 +49,11 @@ import {
 /**
  * The class name added to document widgets.
  */
-export
 const DOCUMENT_CLASS = 'jp-Document';
 
 /**
  * The class name added to focused widgets.
  */
-export
 const FOCUS_CLASS = 'jp-mod-focus';
 
 
@@ -65,8 +63,8 @@ const FOCUS_CLASS = 'jp-mod-focus';
 export
 function resolve(container: Container): Promise<void> {
   return container.resolve({
-    requires: [IAppShell, IDocumentManager, IFileBrowserWidget, ICommandPalette, ICommandRegistry, IShortcutManager],
-    create: (appShell: IAppShell, manager: IDocumentManager, browser: IFileBrowserWidget, palette: ICommandPalette, registry: ICommandRegistry, shortcuts: IShortcutManager): void => {
+    requires: [IAppShell, IDocumentManager, IFileBrowserWidget, ICommandPalette, ICommandRegistry],
+    create: (appShell: IAppShell, manager: IDocumentManager, browser: IFileBrowserWidget, palette: ICommandPalette, registry: ICommandRegistry): void => {
 
       // Create a command to add a new empty text file.
       // This requires an id and an instance of a command object.
@@ -82,14 +80,6 @@ function resolve(container: Container): Promise<void> {
               contents => manager.open(contents)
             );
           }
-        }
-      ]);
-      shortcuts.add([
-        {
-          sequence: ['Ctrl O'],
-          selector: '*',
-          command: newTextFileId,
-          args: void 0
         }
       ]);
       palette.add([
@@ -115,14 +105,6 @@ function resolve(container: Container): Promise<void> {
           }
         }
       ]);
-      shortcuts.add([
-        {
-          sequence: ['Ctrl Shift N'],
-          selector: '*',
-          command: newNotebookId,
-          args: void 0
-        }
-      ]);
       palette.add([
         {
           id: newNotebookId,
@@ -143,14 +125,6 @@ function resolve(container: Container): Promise<void> {
             manager.save();
             return true;
           }
-        }
-      ]);
-      shortcuts.add([
-        {
-          sequence: ['Accel S'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS}`,
-          command: saveDocumentId,
-          args: void 0
         }
       ]);
       palette.add([
@@ -175,14 +149,6 @@ function resolve(container: Container): Promise<void> {
           }
         }
       ]);
-      shortcuts.add([
-        {
-          sequence: ['Accel R'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS}`,
-          command: revertDocumentId,
-          args: void 0
-        }
-      ]);
       palette.add([
         {
           id: revertDocumentId,
@@ -205,14 +171,6 @@ function resolve(container: Container): Promise<void> {
           }
         }
       ]);
-      shortcuts.add([
-        {
-          sequence: ['Ctrl Q'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS}`,
-          command: closeDocumentId,
-          args: void 0
-        }
-      ]);
       palette.add([
         {
           id: closeDocumentId,
@@ -233,14 +191,6 @@ function resolve(container: Container): Promise<void> {
             manager.closeAll();
             return true;
           }
-        }
-      ]);
-      shortcuts.add([
-        {
-          sequence: ['Ctrl Shift Q'],
-          selector: `.${DOCUMENT_CLASS}`,
-          command: closeAllId,
-          args: void 0
         }
       ]);
       palette.add([
