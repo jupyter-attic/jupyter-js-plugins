@@ -100,9 +100,13 @@ function resolve(container: Container): Promise<void> {
           sequence: ['ArrowUp'],
           selector: '.jp-Cell',
           command: 'notebook:select-previous-cell',
+        },
+        {
+          sequence: ['Ctrl T'],
+          selector: '*',
+          command: 'terminal:new',
         }
       ]);
-
     }
   });
 }

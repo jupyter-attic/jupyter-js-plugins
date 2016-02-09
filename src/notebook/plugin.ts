@@ -21,7 +21,7 @@ import {
 } from 'jupyter-js-services';
 
 import {
-  ICommandRegistry, IShortcutManager, ICommandPalette
+  ICommandRegistry, ICommandPalette
 } from 'phosphide';
 
 import {
