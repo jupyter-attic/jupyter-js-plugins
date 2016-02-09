@@ -7,7 +7,7 @@ import {
 } from 'jupyter-js-terminal';
 
 import {
-  IAppShell, ICommandPalette, ICommandRegistry, IShortcutManager
+  IAppShell, ICommandPalette, ICommandRegistry
 } from 'phosphide';
 
 import {
@@ -22,8 +22,8 @@ import {
 export
 function resolve(container: Container): Promise<void> {
   return container.resolve({
-    requires: [IAppShell, ICommandPalette, ICommandRegistry, IShortcutManager],
-    create: (shell: IAppShell, palette: ICommandPalette, registry: ICommandRegistry, shortcuts: IShortcutManager) => {
+    requires: [IAppShell, ICommandPalette, ICommandRegistry],
+    create: (shell: IAppShell, palette: ICommandPalette, registry: ICommandRegistry) => {
 
       let newTerminalId = 'terminal:new';
 
@@ -45,14 +45,6 @@ function resolve(container: Container): Promise<void> {
               tabs.currentWidget = term;
             }
           }
-        }
-      ]);
-      shortcuts.add([
-        {
-          sequence: ['Ctrl T'],
-          selector: '*',
-          command: newTerminalId,
-          args: void 0
         }
       ]);
       palette.add([
