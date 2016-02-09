@@ -63,42 +63,42 @@ function resolve(container: Container): Promise<void> {
         },
         {
           sequence: ['Accel S'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS}`,
+          selector: 'jp-Document',
           command: 'file-operations:save'
         },
         {
           sequence: ['Accel R'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS}`,
+          selector: 'jp-Document',
           command: 'file-operations:revert'
         },
         {
           sequence: ['Ctrl Q'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS}`,
+          selector: 'jp-Document',
           command: 'file-operations:close'
         },
         {
           sequence: ['Ctrl Shift Q'],
-          selector: `.${DOCUMENT_CLASS}`,
+          selector: 'jp-Document',
           command: 'file-operations:close-all'
         },
         {
           sequence: ['Shift Enter'],
-          selector: '.jp-nbCell.jp-selected-cell',
+          selector: '.jp-CodeCell',
           command: 'notebook:execute-selected-cell'
         },
         {
           sequence: ['Shift Enter'],
-          selector: '.jp-MarkdownCell.jp-selected-cell',
+          selector: '.jp-MarkdownCell',
           command: 'notebook:render-selected-cell'
         },
         {
           sequence: ['ArrowDown'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS} .jp-Cell`,
+          selector: '.jp-Cell',
           command: 'notebook:select-next-cell',
         },
         {
           sequence: ['ArrowUp'],
-          selector: `.${DOCUMENT_CLASS}.${FOCUS_CLASS} .jp-Cell`,
+          selector: '.jp-Cell',
           command: 'notebook:select-previous-cell',
         }
       ]);
