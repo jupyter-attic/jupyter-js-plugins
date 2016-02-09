@@ -52,22 +52,22 @@ function resolve(container: Container): Promise<void> {
         },
         {
           sequence: ['Accel S'],
-          selector: 'jp-Document',
+          selector: '.jp-Document',
           command: 'file-operations:save'
         },
         {
           sequence: ['Accel R'],
-          selector: 'jp-Document',
+          selector: '.jp-Document',
           command: 'file-operations:revert'
         },
         {
           sequence: ['Ctrl Q'],
-          selector: 'jp-Document',
+          selector: '.jp-Document',
           command: 'file-operations:close'
         },
         {
           sequence: ['Ctrl Shift Q'],
-          selector: 'jp-Document',
+          selector: '.jp-Document',
           command: 'file-operations:close-all'
         },
         {
