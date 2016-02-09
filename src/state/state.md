@@ -11,6 +11,7 @@ Initial implementation could be a local storage solution, tied to the URL.  When
 
 Question: on a refresh, should Lab IDE session state only inform the initial setup of the environment (and then the URL changes to reflect a new lab sesion id), or should we try to keep two lab sessions in sync, so if you change the dock layout in one browser window, the dock layout in the other browser changes automatically? Or should we make it easy for a user to 'clone' a lab session?   
 
+A new plugin, the LabSessionManager plugin, will change the URL to the lab session id and create a lab session store. Other plugins can resolve this plugin and use it to request keys with initial values. They then can set themselves up according to the values in the lab session, and register for change notifications of the lab session values. As they request modifications of the lab session state, the state is synced somewhere (localstorage in the initial implementation).
 
 Dock panel
 ----------
