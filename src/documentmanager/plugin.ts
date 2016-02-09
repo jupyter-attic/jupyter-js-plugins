@@ -47,17 +47,6 @@ import {
 
 
 /**
- * The class name added to document widgets.
- */
-const DOCUMENT_CLASS = 'jp-Document';
-
-/**
- * The class name added to focused widgets.
- */
-const FOCUS_CLASS = 'jp-mod-focus';
-
-
-/**
  * Register the plugin contributions.
  */
 export
