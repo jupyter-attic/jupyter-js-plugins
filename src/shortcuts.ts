@@ -21,26 +21,31 @@ const SHORTCUTS: IShortcutItem[] = [
   {
     command: 'file-operations:new-text-file',
     selector: '*',
-    sequence: ['Ctrl O']
+    sequence: ['Ctrl Shift F']
   },
   {
     command: 'file-operations:new-notebook',
     selector: '*',
-    sequence: ['Ctrl Shift N']
+    sequence: ['Ctrl Shift B']
   },
   {
     command: 'file-operations:save',
     selector: '.jp-Document',
-    sequence: ['Accel S']
+    sequence: ['Ctrl Shift S']
   },
   {
     command: 'file-operations:close',
     selector: '.jp-Document',
-    sequence: ['Ctrl Q']
+    sequence: ['Ctrl Shift W']
   },
   {
     command: 'file-operations:close-all',
     selector: '.jp-Document',
     sequence: ['Ctrl Shift Q']
+  },
+  {
+    command: 'terminal:new',
+    selector: '*',
+    sequence: ['Ctrl Shift T']
   }
 ];
