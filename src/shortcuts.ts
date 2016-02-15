@@ -9,12 +9,7 @@ import {
 export
 const SHORTCUTS: IShortcutItem[] = [
   {
-    command: 'command-palette:activate',
-    selector: '*',
-    sequence: ['Escape', '/']
-  },
-  {
-    command: 'command-palette:deactivate',
+    command: 'command-palette:toggle',
     selector: '*',
     sequence: ['Escape', 'Escape']
   },

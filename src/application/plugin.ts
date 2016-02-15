@@ -50,6 +50,16 @@ function resolve(container: Container): Promise<void> {
               commandRegistry.execute('appshell:collapse-left');
             }
           }
+        },
+        {
+          id: 'command-palette:toggle',
+          handler: () => {
+            if (palette.widget.isAttached && palette.widget.isVisible) {
+              commandRegistry.execute('command-palette:deactivate');
+            } else {
+              commandRegistry.execute('command-palette:activate');
+            }
+          }
         }
       ]);
       palette.commandTriggered.connect(() => {
