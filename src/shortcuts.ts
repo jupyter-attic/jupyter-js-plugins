@@ -11,36 +11,36 @@ const SHORTCUTS: IShortcutItem[] = [
   {
     command: 'command-palette:toggle',
     selector: '*',
-    sequence: ['Escape', 'Escape']
+    sequence: ['Accel Shift P']
   },
   {
     command: 'file-operations:new-text-file',
     selector: '*',
-    sequence: ['Escape', 'F']
+    sequence: ['Accel Alt F']
   },
   {
     command: 'file-operations:new-notebook',
     selector: '*',
-    sequence: ['Escape', 'B']
+    sequence: []
   },
   {
     command: 'file-operations:save',
     selector: '.jp-Document',
-    sequence: ['Escape', 'S']
+    sequence: []
   },
   {
     command: 'file-operations:close',
     selector: '.jp-Document',
-    sequence: ['Escape', 'W']
+    sequence: []
   },
   {
     command: 'file-operations:close-all',
     selector: '.jp-Document',
-    sequence: ['Escape', 'Q']
+    sequence: []
   },
   {
     command: 'terminal:new',
     selector: '*',
-    sequence: ['Escape', 'T']
+    sequence: ['Accel Shift C']
   }
 ];

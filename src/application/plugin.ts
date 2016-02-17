@@ -72,6 +72,7 @@ function resolve(container: Container): Promise<void> {
       shell.addToLeftArea(browser, { rank: 40 });
       // Add the application keyboard shortcuts.
       shortcutManager.add(SHORTCUTS);
+      console.log('shortcut added here');
       // Attach the app shell to the DOM.
       shell.attach(document.body);
       window.addEventListener('resize', () => { shell.update(); });

@@ -55,6 +55,7 @@ function resolve(container: Container): Promise<void> {
           caption: 'Start a new terminal session'
         }
       ]);
+      console.log('added to palette here');
     }
   });
 }
