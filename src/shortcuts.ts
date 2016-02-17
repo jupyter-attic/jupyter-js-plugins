@@ -36,11 +36,17 @@ const SHORTCUTS: IShortcutItem[] = [
   {
     command: 'file-operations:close-all',
     selector: '.jp-Document',
-    sequence: []
+    sequence: ['Ctrl Shift Q']
   },
   {
-    command: 'terminal:new',
-    selector: '*',
-    sequence: ['Accel Shift C']
+    command: 'notebook:execute-selected-cell',
+    selector: '.jp-CodeCell',
+    sequence: ['Shift Enter']
+  },
+  {
+    command: 'notebook:render-selected-cell',
+    selector: '.jp-MarkdownCell',
+    sequence: ['Shift Enter']
   }
+
 ];
