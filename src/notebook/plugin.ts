@@ -3,7 +3,7 @@
 'use strict';
 
 import {
-  AbstractFileHandler
+  AbstractFileHandler, DocumentManager
 } from 'jupyter-js-docmanager';
 
 import {
@@ -17,16 +17,12 @@ import {
 import {
   IContentsModel, IContentsManager,
   NotebookSessionManager, INotebookSessionManager,
-  INotebookSession, IKernelMessage
+  INotebookSession, IKernelMessage, IComm
 } from 'jupyter-js-services';
 
 import {
-  ICommandRegistry, ICommandPalette
-} from 'phosphide';
-
-import {
-  Container
-} from 'phosphor-di';
+  Application
+} from 'phosphide/lib/core/application';
 
 import {
   Panel
@@ -41,8 +37,8 @@ import {
 } from 'phosphor-widget';
 
 import {
-  IServicesProvider, IDocumentManager
-} from '../index';
+  JupyterServices
+} from '../services/plugin';
 
 import {
   WidgetManager
@@ -64,66 +60,60 @@ const DIRTY_CLASS = 'jp-mod-dirty';
 
 
 /**
- * Register the plugin contributions.
- *
- * @param container - The di container for type registration.
- *
- * #### Notes
- * This is called automatically when the plugin is loaded.
+ * The notebook file handler provider.
  */
 export
-function resolve(container: Container): Promise<AbstractFileHandler> {
-  return container.resolve({
-    requires: [IServicesProvider, IDocumentManager, ICommandRegistry, ICommandPalette],
-    create: (services: IServicesProvider, manager: IDocumentManager,
-             registry: ICommandRegistry,
-             palette: ICommandPalette) => {
-      let handler = new NotebookFileHandler(
-        services.contentsManager,
-        services.notebookSessionManager
-      );
-      manager.register(handler);
-      registry.add([{
-        id: executeCellCommandId,
-        handler: () => handler.executeSelectedCell()
-      }, {
-        id: renderCellCommandId,
-        handler: () => handler.renderSelectedCell()
-      }, {
-        id: selectNextCellCommandId,
-        handler: () => handler.selectNextCell()
-      }, {
-        id: selectPreviousCellCommandId,
-        handler: () => handler.selectPreviousCell()
-      }]);
-      palette.add([{
-        id: executeCellCommandId,
-        category: 'Notebook Operations',
-        args: void 0,
-        text: 'Execute current cell',
-        caption: 'Execute the current cell'
-      }, {
-        id: renderCellCommandId,
-        category: 'Notebook Operations',
-        args: void 0,
-        text: 'Render current markdown cell',
-        caption: 'Render the current markdown cell'
-      }, {
-        id: selectNextCellCommandId,
-        category: 'Notebook Operations',
-        args: void 0,
-        text: 'Select next cell',
-        caption: 'Select next cell'
-      }, {
-        id: selectPreviousCellCommandId,
-        category: 'Notebook Operations',
-        args: void 0,
-        text: 'Select previous cell',
-        caption: 'Select previous cell'
-      }]);
-      return handler;
-    }
-  });
+const notebookHandlerExtension = {
+  id: 'jupyter.extensions.notebookHandler',
+  requires: [DocumentManager, JupyterServices],
+  activate: activateNotebookHandler
+}
+
+
+/**
+ * Activate the notebook handler extension.
+ */
+function activateNotebookHandler(app: Application, manager: DocumentManager, services: JupyterServices): Promise<void> {
+  let handler = new NotebookFileHandler(
+    services.contentsManager,
+    services.notebookSessionManager
+  );
+  manager.register(handler);
+  app.commands.add([{
+    id: executeCellCommandId,
+    handler: () => handler.executeSelectedCell()
+  }, {
+    id: renderCellCommandId,
+    handler: () => handler.renderSelectedCell()
+  }, {
+    id: selectNextCellCommandId,
+    handler: () => handler.selectNextCell()
+  }, {
+    id: selectPreviousCellCommandId,
+    handler: () => handler.selectPreviousCell()
+  }]);
+  app.palette.add([{
+    command: executeCellCommandId,
+    category: 'Notebook Operations',
+    text: 'Execute current cell',
+    caption: 'Execute the current cell'
+  }, {
+    command: renderCellCommandId,
+    category: 'Notebook Operations',
+    text: 'Render current markdown cell',
+    caption: 'Render the current markdown cell'
+  }, {
+    command: selectNextCellCommandId,
+    category: 'Notebook Operations',
+    text: 'Select next cell',
+    caption: 'Select next cell'
+  }, {
+    command: selectPreviousCellCommandId,
+    category: 'Notebook Operations',
+    text: 'Select previous cell',
+    caption: 'Select previous cell'
+  }]);
+  return Promise.resolve(void 0);
 }
 
 
@@ -166,6 +156,10 @@ function executeSelectedCell(model: INotebookModel, session: INotebookSession)  
         output.add(model)
       }
     });
+    if (model.selectedCellIndex === model.cells.length - 1) {
+      let cell = model.createCodeCell();
+      model.cells.add(cell);
+    }
     model.selectNextCell();
     ex.onReply = (msg => {console.log('a', msg)});
     ex.onDone = (msg => {console.log('b', msg)});
@@ -181,6 +175,11 @@ function renderSelectedCell(model: INotebookModel)  {
   if (isMarkdownCellModel(cell)) {
     cell.rendered = true;
   }
+  if (model.selectedCellIndex === model.cells.length - 1) {
+    let cell = model.createCodeCell();
+    model.cells.add(cell);
+  }
+  model.selectNextCell();
 }
 
 
@@ -230,7 +229,7 @@ class NotebookContainer extends Panel {
   setSession(value: INotebookSession) {
     this._session = value;
 
-    this._session.kernel.registerCommTarget('jupyter.widget', (comm, msg) => {
+    let commHandler = (comm: IComm, msg: IKernelMessage) => {
       console.log('comm message', msg);
 
       let modelPromise = this._manager.handle_comm_open(comm, msg);
@@ -243,7 +242,10 @@ class NotebookContainer extends Panel {
       comm.onClose = (msg) => {
         console.log('comm widget close', msg);
       }
-    });
+    };
+
+    this._session.kernel.registerCommTarget('ipython.widget', commHandler);
+    this._session.kernel.registerCommTarget('jupyter.widget', commHandler);
   }
 
   private _onModelChanged(model: INotebookModel, args: IChangedArgs<INotebookModel>): void {
@@ -343,17 +345,13 @@ class NotebookFileHandler extends AbstractFileHandler {
       name: model.name,
       path: model.path
     }
-    if (nbData.content.cells.length == 0) {
-      nbData.content.cells.push({
-        cell_type: 'code',
-        source: '',
-        outputs: [],
-        execution_count: 1,
-        metadata: { collapsed: true }
-      });
-    }
     let nbWidget: NotebookWidget = ((widget as Panel).childAt(1)) as NotebookWidget;
     populateNotebookModel(nbWidget.model, nbData);
+    if (nbWidget.model.cells.length === 0) {
+      let cell = nbWidget.model.createCodeCell();
+      nbWidget.model.cells.add(cell);
+    }
+    nbWidget.model.selectedCellIndex = 0;
 
     return Promise.resolve();
   }
