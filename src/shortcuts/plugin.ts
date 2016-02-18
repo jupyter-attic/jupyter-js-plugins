@@ -15,8 +15,6 @@ const SHORTCUTS = [
     command: 'command-palette:toggle',
     selector: '*',
     sequence: ['Accel Shift P']
-<<<<<<< HEAD:src/shortcuts.ts
-=======
   },
   {
     command: 'command-palette:hide',
@@ -32,32 +30,31 @@ const SHORTCUTS = [
     command: 'file-browser:hide',
     selector: '[data-left-area="file-browser"]',
     sequence: ['Escape']
->>>>>>> master:src/shortcuts/plugin.ts
   },
   {
     command: 'file-operations:new-text-file',
     selector: '*',
-    sequence: ['Accel Alt F']
+    sequence: ['Ctrl O']
   },
   {
     command: 'file-operations:new-notebook',
     selector: '*',
-    sequence: []
+    sequence: ['Ctrl Shift B']
   },
   {
     command: 'file-operations:save',
     selector: '.jp-Document',
-    sequence: []
+    sequence: ['Accel S']
   },
   {
     command: 'file-operations:close',
     selector: '.jp-Document',
-    sequence: []
+    sequence: ['Ctrl W']
   },
   {
     command: 'file-operations:close-all',
     selector: '.jp-Document',
-    sequence: ['Ctrl Shift Q']
+    sequence: ['Ctrl Shift W']
   },
   {
     command: 'notebook:execute-selected-cell',
@@ -70,9 +67,9 @@ const SHORTCUTS = [
     sequence: ['Shift Enter']
   },
   {
-    command: 'help-doc:activate',
+    command: 'help-doc:toggle',
     selector: '*',
-    sequence: ['Accel Shift H']
+    sequence: ['Alt Shift H']
   },
   {
     command: 'help-doc:hide',
@@ -93,5 +90,3 @@ const shortcutsExtension = {
     return Promise.resolve(void 0);
   }
 };
-
-
