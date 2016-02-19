@@ -12,7 +12,7 @@ import {
  */
 const SHORTCUTS = [
   {
-    command: 'command-palette:activate',
+    command: 'command-palette:toggle',
     selector: '*',
     sequence: ['Accel Shift P']
   },
@@ -39,7 +39,7 @@ const SHORTCUTS = [
   {
     command: 'file-operations:new-notebook',
     selector: '*',
-    sequence: ['Ctrl Shift N']
+    sequence: ['Ctrl Shift B']
   },
   {
     command: 'file-operations:save',
@@ -49,12 +49,12 @@ const SHORTCUTS = [
   {
     command: 'file-operations:close',
     selector: '.jp-Document',
-    sequence: ['Ctrl Q']
+    sequence: ['Ctrl W']
   },
   {
     command: 'file-operations:close-all',
     selector: '.jp-Document',
-    sequence: ['Ctrl Shift Q']
+    sequence: ['Ctrl Shift W']
   },
   {
     command: 'notebook:run-selected-cell',
@@ -62,9 +62,9 @@ const SHORTCUTS = [
     sequence: ['Shift Enter']
   },
   {
-    command: 'help-doc:activate',
+    command: 'help-doc:toggle',
     selector: '*',
-    sequence: ['Accel Shift H']
+    sequence: ['Alt Shift H']
   },
   {
     command: 'help-doc:hide',
@@ -85,5 +85,3 @@ const shortcutsExtension = {
     return Promise.resolve(void 0);
   }
 };
-
-

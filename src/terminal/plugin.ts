@@ -16,7 +16,7 @@ import {
 
 
 /**
- * The default terminal extension. 
+ * The default terminal extension.
  */
 export
 const terminalExtension = {

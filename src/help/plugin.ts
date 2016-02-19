@@ -87,7 +87,7 @@ function activateHelpHandler(app: Application): Promise<void> {
 
   app.commands.add([
     {
-      id: 'help-doc:activate',
+      id: 'help-doc:toggle',
       handler: showHelp
     },
     {
@@ -119,5 +119,16 @@ function activateHelpHandler(app: Application): Promise<void> {
 
   function hideHelp(): void {
     if (!widget.isHidden) app.shell.collapseRight();
+  }
+
+  function toggleHelp(): void {
+    if (!widget.isAttached) {
+      return;
+    }
+    if (widget.isHidden) {
+      showHelp();
+    } else {
+      hideHelp();
+    }
   }
 }
