@@ -22,7 +22,7 @@ const aboutExtension = {
     widget.id = 'about-jupyterlab';
     widget.title.text = 'About';
     widget.title.closable = false;
-    widget.node.textContent = 'hello, world';
+    widget.node.textContent = 'Welcome to JupyterLab! We\'re under construction. 🚧';
     app.shell.addToMainArea(widget);
   }
 }
