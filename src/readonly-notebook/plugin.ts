@@ -15,8 +15,16 @@ import {
 } from 'jupyter-js-ui/lib/docmanager';
 
 import {
+  RenderMime
+} from 'jupyter-js-ui/lib/rendermime';
+
+import {
   Application
 } from 'phosphide/lib/core/application';
+
+import {
+  Widget
+} from 'phosphor-widget';
 
 import {
   JupyterServices
@@ -30,7 +38,7 @@ import {
 export
 const notebookHandlerExtension = {
   id: 'jupyter.extensions.notebookHandler',
-  requires: [DocumentManager, JupyterServices],
+  requires: [DocumentManager, JupyterServices, RenderMime],
   activate: activateNotebookHandler
 };
 
@@ -38,9 +46,10 @@ const notebookHandlerExtension = {
 /**
  * Activate the notebook handler extension.
  */
-function activateNotebookHandler(app: Application, manager: DocumentManager, services: JupyterServices): Promise<void> {
+function activateNotebookHandler(app: Application, manager: DocumentManager, services: JupyterServices, rendermime: RenderMime<Widget>): Promise<void> {
   let handler = new NotebookFileHandler(
-    services.contentsManager
+    services.contentsManager,
+    rendermime
   );
   manager.register(handler);
   return Promise.resolve(void 0);
@@ -52,8 +61,9 @@ function activateNotebookHandler(app: Application, manager: DocumentManager, ser
  */
 class NotebookFileHandler extends AbstractFileHandler<NotebookWidget> {
 
-  constructor(contents: IContentsManager) {
+  constructor(contents: IContentsManager, rendermime: RenderMime<Widget>) {
     super(contents);
+    this.rendermime = rendermime;
   }
 
   /**
@@ -84,7 +94,7 @@ class NotebookFileHandler extends AbstractFileHandler<NotebookWidget> {
   protected createWidget(contents: IContentsModel): NotebookWidget {
     let model = new NotebookModel();
     model.readOnly = true;
-    return new NotebookWidget(model);
+    return new NotebookWidget(model, this.rendermime);
   }
 
   /**
@@ -99,4 +109,6 @@ class NotebookFileHandler extends AbstractFileHandler<NotebookWidget> {
 
     return Promise.resolve(model);
   }
+  
+  rendermime: RenderMime<Widget>;
 }
