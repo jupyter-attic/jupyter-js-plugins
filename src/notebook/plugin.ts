@@ -564,15 +564,43 @@ class NotebookFileHandler extends AbstractFileHandler<NotebookPane> {
    */
   protected populateWidget(widget: NotebookPane, model: IContentsModel): Promise<IContentsModel> {
     deserialize(model.content, widget.model);
-    return this._kernelSpecs.then(specs => {
-      let name = findKernel(widget.model, specs);
-      return this._session.startNew({ 
-        kernelName: name, 
-        notebookPath: model.path
+    if (widget.model.metadata.kernelspec === void 0) {
+      widget.model.metadata.kernelspec = {
+        name: 'unknown',
+        display_name: 'unknown'
+      };
+    }
+    if (widget.model.metadata.language_info === void 0) {
+      widget.model.metadata.language_info = { name: 'unknown' };
+    }
+    return this._getSessionForPath(model.path).then(session => {
+      if (session !== void 0) {
+        return session;
+      }
+      return this._kernelSpecs.then(specs => {
+        let name = findKernel(widget.model, specs);
+        return this._session.startNew({
+          kernelName: name,
+          notebookPath: model.path
+        });
       });
     }).then(session => {
       widget.setSession(session);
       return model;
+    });
+  }
+
+  /**
+   * Find a running session by path.
+   */
+  private _getSessionForPath(path: string): Promise<INotebookSession> {
+    return this._session.listRunning().then(sessions => {
+      for (let session of sessions) {
+        if (session.notebook.path === path) {
+          return this._session.connectTo(session.id);
+        }
+      }
+      return Promise.resolve(void 0);
     });
   }
 
