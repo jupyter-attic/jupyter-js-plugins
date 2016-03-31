@@ -20,11 +20,13 @@ var app = new phosphide.Application({
     require('jupyter-js-plugins/lib/about/plugin').aboutExtension,
     require('jupyter-js-plugins/lib/renderers/plugin').renderersExtension,
     require('jupyter-js-plugins/lib/main/plugin').mainExtension,
+    require('jupyter-js-plugins/lib/widgets/widgetmanager').widgetManagerExtension,
   ],
   providers: [
     require('jupyter-js-plugins/lib/documentmanager/plugin').documentManagerProvider,
     require('jupyter-js-plugins/lib/services/plugin').servicesProvider,
     require('jupyter-js-plugins/lib/rendermime/plugin').rendermimeProvider,
+    require('jupyter-js-plugins/lib/notebook/service').notebookServicesProvider,
   ]
 });
 
