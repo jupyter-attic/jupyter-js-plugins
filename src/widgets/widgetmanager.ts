@@ -1,8 +1,7 @@
 // Copyright (c) Jupyter Development Team.
 // Distributed under the terms of the Modified BSD License.
-'use strict';
 
-import * as Backbone from 'backbone';
+//import * as Backbone from 'backbone';
 
 import {
     ManagerBase, shims
@@ -29,10 +28,6 @@ import {
 } from '../notebook/service';
 
 import {
-  Message
-} from 'phosphor-messaging';
-
-import {
   Widget
 } from 'phosphor-widget';
 
@@ -50,7 +45,7 @@ import 'jupyter-js-widgets/css/widgets.min.css';
 
 
 /**
- * The notebook file handler provider.
+ * The widget manager extension.
  */
 export
 const widgetManagerExtension = {
@@ -66,28 +61,13 @@ function activateWidgetManager(app: Application, rendermime: RenderMime<Widget>,
 
 export
 function widgetServiceFactory(): NotebookServices {
-  // create widget manager
   let widgetManager = new WidgetManager();
   
-  // make a rendermime for widgets.
-
   let rendermime = new RenderMime(
-    {'application/vnd.jupyter.widget': new WidgetRenderer(widgetManager)}, ['application/vnd.jupyter.widget']);
+    {'application/vnd.jupyter.widget': new WidgetRenderer(widgetManager)}, 
+    ['application/vnd.jupyter.widget']);
   
-  let commHandler = (comm: IComm, msg: IKernelMessage) => {
-    console.log('comm message', msg);
-
-    widgetManager.handle_comm_open(comm, msg);
-
-    comm.onMsg = (message) => {
-      widgetManager.handle_comm_open(comm, message);
-      // create the widget model and (if needed) the view
-      console.log('comm widget message', message);
-    };
-    comm.onClose = (message) => {
-      console.log('comm widget close', message);
-    };
-  }
+  let commHandler = widgetManager.handle_comm_open.bind(widgetManager);
   
   let comms = {
     'ipython.widget': commHandler, 
@@ -102,6 +82,9 @@ function widgetServiceFactory(): NotebookServices {
 
 export
 class WidgetManager extends ManagerBase<Widget> {
+  /**
+   * Return a phosphor widget representing the view
+   */
   display_view(msg: any, view: Backbone.View<any>, options: any): Widget {
     return new BackboneViewWrapper(view);
   }
@@ -109,7 +92,7 @@ class WidgetManager extends ManagerBase<Widget> {
   /**
    * Handle when a comm is opened.
    */
-  handle_comm_open(comm: any, msg: any) {
+  handle_comm_open(comm: IComm, msg: IKernelMessage) {
     // Convert jupyter-js-services comm to old comm
     // so that widget models use it compatibly
     let oldComm = new shims.services.Comm(comm);
@@ -118,7 +101,7 @@ class WidgetManager extends ManagerBase<Widget> {
 }
 
 /**
- * A renderer for raw html.
+ * A renderer for widgets.
  */
 export
 class WidgetRenderer implements IRenderer<Widget> {
@@ -126,6 +109,9 @@ class WidgetRenderer implements IRenderer<Widget> {
     this._manager = widgetManager;
   }
 
+  /**
+   * Render a widget mimetype.
+   */
   render(mimetype: string, data: string): Widget {
     // data is a model id
     let w = new Panel();
@@ -140,31 +126,3 @@ class WidgetRenderer implements IRenderer<Widget> {
   private _manager: WidgetManager;
   mimetypes = ['application/vnd.jupyter.widget'];
 }
-
-
-
-/*
-
-    let widgetArea = new Panel();
-    widgetArea.addClass(WIDGET_CLASS);
-    this._widgetManager = new WidgetManager(widgetArea);
-
-    this.addChild(widgetArea);
-
-    let commHandler = (comm: IComm, msg: IKernelMessage) => {
-      console.log('comm message', msg);
-
-      manager.handle_comm_open(comm, msg);
-
-      comm.onMsg = (message) => {
-        manager.handle_comm_open(comm, message);
-        // create the widget model and (if needed) the view
-        console.log('comm widget message', message);
-      };
-      comm.onClose = (message) => {
-        console.log('comm widget close', message);
-      };
-    };
-    this._session.kernel.registerCommTarget('ipython.widget', commHandler);
-    this._session.kernel.registerCommTarget('jupyter.widget', commHandler);
-*/

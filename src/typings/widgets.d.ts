@@ -5,6 +5,7 @@ declare module Widgets {
     export class ManagerBase<T> {
         display_view(msg: any, view: any, options: any): T;
         handle_comm_open(comm: shims.services.Comm, msg: any): Promise<any>;
+        // how do I say msg is an IKernelMessage from 'jupyter-js-services'?
         display_model(msg: any, view: any, options: any): Promise<T>;
         get_model(id: string): any;
     }
