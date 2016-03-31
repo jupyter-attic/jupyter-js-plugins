@@ -362,7 +362,6 @@ class NotebookPane extends Panel {
     
     this._localServices = nbservices.registry.map((factory) => factory());
 
-    // insert each rendermime local instance
     this._rendermime = rendermime.clone();
     for (let service of this._localServices) {
       for (let m in service.rendermime.renderers) {

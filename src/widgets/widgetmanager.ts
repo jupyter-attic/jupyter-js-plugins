@@ -24,7 +24,7 @@ import {
 } from '../backboneviewwrapper/plugin';
 
 import {
-  NotebookServicesRegistry, NotebookServices
+  NotebookServicesRegistry, NotebookServices, commhandler, commTargetMap
 } from '../notebook/service';
 
 import {
@@ -58,7 +58,6 @@ function activateWidgetManager(app: Application, rendermime: RenderMime<Widget>,
   nbservices.registerProvider(widgetServiceFactory);
 }
 
-
 export
 function widgetServiceFactory(): NotebookServices {
   let widgetManager = new WidgetManager();
@@ -67,10 +66,10 @@ function widgetServiceFactory(): NotebookServices {
     {'application/vnd.jupyter.widget': new WidgetRenderer(widgetManager)}, 
     ['application/vnd.jupyter.widget']);
   
-  let commHandler = widgetManager.handle_comm_open.bind(widgetManager);
+  let commHandler: commhandler = (comm, msg) => widgetManager.handle_comm_open(comm, msg);
   
-  let comms = {
-    'ipython.widget': commHandler, 
+  let comms: commTargetMap = {
+    'ipython.widget': commHandler,
     'jupyter.widget': commHandler
   }
   

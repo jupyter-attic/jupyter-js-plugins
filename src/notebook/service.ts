@@ -10,7 +10,7 @@ import {
 } from 'phosphor-widget';
 
 import {
-  IKernelMessage, IComm
+  IComm, IKernelIOPubCommOpenMessage
 } from 'jupyter-js-services';
 
 /**
@@ -23,12 +23,20 @@ const notebookServicesProvider = {
   resolve: () => new NotebookServicesRegistry()
 }
 
+export
+type commhandler = (comm: IComm, msg: IKernelIOPubCommOpenMessage) => void;
+
+export
+interface commTargetMap {
+  [target: string]: commhandler
+}
+
 /**
  * A provider for notebook services.
  */
 export
 interface NotebookServices {
-  commTargets: {[target: string]: (comm: IComm, msg: IKernelMessage) => Promise<any> }
+  commTargets: commTargetMap
   rendermime: RenderMime<Widget>;
 }
 
