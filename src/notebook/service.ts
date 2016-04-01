@@ -13,22 +13,12 @@ import {
   IComm, IKernelIOPubCommOpenMessage
 } from 'jupyter-js-services';
 
-/**
- * The notebook services provider registry.
- */
 export
-const notebookServicesProvider = {
-  id: 'jupyterlab.services.notebookservices',
-  provides: NotebookServicesRegistry,
-  resolve: () => new NotebookServicesRegistry()
-}
-
-export
-type commhandler = (comm: IComm, msg: IKernelIOPubCommOpenMessage) => void;
+type commOpenHandler = (comm: IComm, msg: IKernelIOPubCommOpenMessage) => void;
 
 export
 interface commTargetMap {
-  [target: string]: commhandler
+  [target: string]: commOpenHandler
 }
 
 /**
@@ -68,4 +58,14 @@ class NotebookServicesRegistry {
   private _services: NotebookServiceFactory[] = [];
 }
 
-
+/**
+ * The notebook services provider registry.
+ */
+export
+const notebookServicesProvider = {
+  id: 'jupyterlab.services.notebookservices',
+  provides: NotebookServicesRegistry,
+  resolve: () => {
+    return new NotebookServicesRegistry();
+  }
+}
