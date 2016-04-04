@@ -172,6 +172,7 @@ function activateFileBrowser(app: Application, manager: DocumentManager, provide
   ]);
 
   // Add the command for closing a document.
+  /* TODO: replace this once we have focus messages.
   let closeDocumentId = 'file-operations:close';
 
   app.commands.add([
@@ -190,6 +191,7 @@ function activateFileBrowser(app: Application, manager: DocumentManager, provide
       caption: 'Close the current document'
     }
   ]);
+  */
 
   // Add the command for closing all documents.
   let closeAllId = 'file-operations:close-all';
@@ -199,6 +201,7 @@ function activateFileBrowser(app: Application, manager: DocumentManager, provide
       id: closeAllId,
       handler: () => {
         manager.closeAll();
+        app.commands.execute('terminal:close-all');
       }
     }
   ]);
