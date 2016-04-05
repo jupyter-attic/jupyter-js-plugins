@@ -20,7 +20,7 @@ import {
 
 import {
   IChangedArgs
-} from 'phosphor-properties';
+} from 'phosphor-core/lib/patterns/properties';
 
 import {
   Menu, MenuItem
