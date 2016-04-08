@@ -23,6 +23,10 @@ import {
 } from 'jupyter-js-ui/lib/docmanager';
 
 import {
+  RenderMime
+} from 'jupyter-js-ui/lib/rendermime';
+
+import {
   Application
 } from 'phosphide/lib/core/application';
 
@@ -43,9 +47,8 @@ import {
 } from '../services/plugin';
 
 import {
-   WidgetManager
-} from './widgetmanager';
-
+  NotebookServicesRegistry, NotebookServices
+} from './service';
 
 /**
  * The map of command ids used by the notebook.
@@ -97,7 +100,7 @@ let WIDGET_CLASS = 'jp-NotebookPane-widget';
 export
 const notebookHandlerExtension = {
   id: 'jupyter.extensions.notebookHandler',
-  requires: [DocumentManager, JupyterServices],
+  requires: [DocumentManager, JupyterServices, RenderMime, NotebookServicesRegistry],
   activate: activateNotebookHandler
 };
 
@@ -105,10 +108,13 @@ const notebookHandlerExtension = {
 /**
  * Activate the notebook handler extension.
  */
-function activateNotebookHandler(app: Application, manager: DocumentManager, services: JupyterServices): Promise<void> {
+function activateNotebookHandler(app: Application, manager: DocumentManager, 
+    services: JupyterServices, rendermime: RenderMime<Widget>, nbservices: NotebookServicesRegistry): Promise<void> {
   let handler = new NotebookFileHandler(
     services.contentsManager,
-    services.notebookSessionManager
+    services.notebookSessionManager,
+    rendermime,
+    nbservices
   );
   manager.register(handler);
   app.commands.add([
@@ -390,22 +396,28 @@ class NotebookPane extends Panel {
   /**
    * Construct a new NotebookPane.
    */
-  constructor(manager: IContentsManager) {
+  constructor(manager: IContentsManager, rendermime: RenderMime<Widget>, nbservices: NotebookServicesRegistry) {
     super();
     this.addClass(NB_PANE);
     this._model = new NotebookModel();
     this._nbManager = new NotebookManager(this._model, manager);
-    let widgetArea = new Panel();
-    widgetArea.addClass(WIDGET_CLASS);
-    this._widgetManager = new WidgetManager(widgetArea);
-    this._notebook = new NotebookWidget(this._model);
+    
+    this._localServices = nbservices.registry.map((factory) => factory());
 
-    this.addChild(widgetArea);
+    this._rendermime = rendermime.clone();
+    for (let service of this._localServices) {
+      for (let m in service.rendermime.renderers) {
+        this._rendermime.renderers[m] = service.rendermime.renderers[m]
+      }
+      Array.prototype.unshift.apply(this._rendermime.order, service.rendermime.order);
+    } 
+
     this.addChild(new NotebookToolbar(this._nbManager));
 
     let container = new Widget();
     container.addClass(NB_CONTAINER);
     container.layout = new PanelLayout();
+    this._notebook = new NotebookWidget(this._model, this._rendermime);
     (container.layout as PanelLayout).addChild(this._notebook);
     this.addChild(container);
   }
@@ -456,32 +468,21 @@ class NotebookPane extends Panel {
   setSession(value: INotebookSession) {
     this._session = value;
     this._model.session = value;
-    let manager = this._widgetManager;
 
-    let commHandler = (comm: IComm, msg: IKernelMessage) => {
-      console.log('comm message', msg);
-
-      manager.handle_comm_open(comm, msg);
-
-      comm.onMsg = (message) => {
-        manager.handle_comm_open(comm, message);
-        // create the widget model and (if needed) the view
-        console.log('comm widget message', message);
-      };
-      comm.onClose = (message) => {
-        console.log('comm widget close', message);
-      };
-    };
-
-    this._session.kernel.registerCommTarget('ipython.widget', commHandler);
-    this._session.kernel.registerCommTarget('jupyter.widget', commHandler);
+    // register each service comm target
+    for (let service of this._localServices) {
+      for (let m in service.commTargets) {
+        this._session.kernel.registerCommTarget(m, service.commTargets[m]);
+      }
+    }
   }
 
   private _model: INotebookModel = null;
   private _session: INotebookSession = null;
-  private _widgetManager: WidgetManager = null;
+  private _rendermime: RenderMime<Widget> = null;
   private _nbManager: NotebookManager = null;
   private _notebook: NotebookWidget = null;
+  private _localServices: NotebookServices[];
 }
 
 
@@ -490,10 +491,13 @@ class NotebookPane extends Panel {
  */
 class NotebookFileHandler extends AbstractFileHandler<NotebookPane> {
 
-  constructor(contents: IContentsManager, session: INotebookSessionManager) {
+  constructor(contents: IContentsManager, session: INotebookSessionManager, rendermime: RenderMime<Widget>,
+              nbservices: NotebookServicesRegistry) {
     super(contents);
     this._session = session;
     this._kernelSpecs = getKernelSpecs({});
+    this._rendermime = rendermime;
+    this._nbservices = nbservices;
   }
 
   /**
@@ -595,7 +599,7 @@ class NotebookFileHandler extends AbstractFileHandler<NotebookPane> {
    * Create the widget from an `IContentsModel`.
    */
   protected createWidget(contents: IContentsModel): NotebookPane {
-    let panel = new NotebookPane(this.manager);
+    let panel = new NotebookPane(this.manager, this._rendermime, this._nbservices);
     panel.model.stateChanged.connect(this._onModelChanged, this);
     panel.title.text = contents.name;
     return panel;
@@ -640,4 +644,6 @@ class NotebookFileHandler extends AbstractFileHandler<NotebookPane> {
 
   private _session: INotebookSessionManager = null;
   private _kernelSpecs: Promise<IKernelSpecIds> = null;
+  private _rendermime: RenderMime<Widget> = null;
+  private _nbservices: NotebookServicesRegistry = null;
 }
