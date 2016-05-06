@@ -5,7 +5,8 @@
 import {
   NotebookWidget, NotebookModel, serialize, INotebookModel, deserialize,
   NotebookManager, NotebookToolbar, selectKernel,
-  findKernel, NotebookFileHandler, NotebookCreator, NotebookPanel
+  findKernel, NotebookFileHandler, NotebookCreator, NotebookPanel,
+  NotebookSignals, NotebookContext
 } from 'jupyter-js-notebook';
 
 import {
@@ -50,11 +51,6 @@ import {
 import {
   JupyterServices
 } from '../services/plugin';
-
-import {
-   WidgetManager
-} from './widgetmanager';
-
 
 /**
  * The map of command ids used by the notebook.
@@ -107,7 +103,7 @@ let WIDGET_CLASS = 'jp-NotebookPane-widget';
 export
 const notebookHandlerExtension = {
   id: 'jupyter.extensions.notebookHandler',
-  requires: [FileHandlerRegistry, JupyterServices, RenderMime],
+  requires: [FileHandlerRegistry, JupyterServices, RenderMime, NotebookSignals],
   activate: activateNotebookHandler
 };
 
@@ -115,11 +111,12 @@ const notebookHandlerExtension = {
 /**
  * Activate the notebook handler extension.
  */
-function activateNotebookHandler(app: Application, registry: FileHandlerRegistry, services: JupyterServices, rendermime: RenderMime<Widget>): Promise<void> {
+function activateNotebookHandler(app: Application, registry: FileHandlerRegistry, services: JupyterServices, rendermime: RenderMime<Widget>, nbsignals: NotebookSignals): Promise<void> {
   let handler = new NotebookFileHandler(
     services.contentsManager,
     services.notebookSessionManager,
-    rendermime
+    rendermime,
+    nbsignals
   );
   registry.addHandler(handler);
 

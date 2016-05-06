@@ -22,11 +22,13 @@ var app = new phosphide.Application({
     require('jupyter-js-plugins/lib/about/plugin').aboutExtension,
     require('jupyter-js-plugins/lib/landing/plugin').landingExtension,
     require('jupyter-js-plugins/lib/main/plugin').mainExtension,
+    require('jupyter-js-plugins/lib/widgets/plugin').widgetManagerExtension,
   ],
   providers: [
     require('jupyter-js-plugins/lib/filehandler/plugin').fileHandlerProvider,
     require('jupyter-js-plugins/lib/services/plugin').servicesProvider,
-    require('jupyter-js-plugins/lib/rendermime/plugin').renderMimeProvider
+    require('jupyter-js-plugins/lib/rendermime/plugin').renderMimeProvider,
+    require('jupyter-js-plugins/lib/notebook/signal').notebookSignals,
   ]
 });
 
