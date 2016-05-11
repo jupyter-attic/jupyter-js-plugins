@@ -1,4 +1,4 @@
-
+var path = require('path');
 module.exports = {
   entry: './index.js',
   output: {
@@ -20,5 +20,11 @@ module.exports = {
       // Handle image
       { test: /\.(jpg|png|gif|svg)$/, loader: "file" },
     ]
-  }
+  },
+  resolve: {
+    alias: {
+      'phosphor-widget': path.resolve('../node_modules/phosphor-widget'),
+   },
+},
+
 }
